@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Materi SQL Lanjutan (Interaktif) — DB Sekolah & DB Kuliah</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+
+<body>
+  <div class="container">
+    <header class="topbar" aria-label="Header">
+      <div class="row">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Materi SQL Lanjutan (Interaktif) — 2 Database</h1>
+            <div class="sub">Fokus: SELECT • WHERE • LIKE • IN • BETWEEN • ORDER BY • LIMIT • JOIN</div>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <nav class="tabs" role="tablist" aria-label="Pilih database">
+          <button class="tab-btn active" data-tab="sekolah" role="tab" aria-selected="true">DB Sekolah</button>
+          <button class="tab-btn" data-tab="kuliah" role="tab" aria-selected="false">DB Kuliah</button>
+        </nav>
+      </div>
+
+      <div class="controls">
+        <div class="search" title="Cari query/penjelasan">
+          🔎
+          <input id="search" type="text" placeholder="Cari: JOIN, LIKE, ORDER BY, angkatan, stok, semester, dll…" />
+          <span class="kbd">Ctrl</span><span class="kbd">K</span>
+        </div>
+
+        <button class="btn ghost" id="expandAll">Buka semua</button>
+        <button class="btn ghost" id="collapseAll">Tutup semua</button>
+        <button class="btn good" id="copyAll">Copy semua query (tab aktif)</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- ===================== TAB: SEKOLAH ===================== -->
+      <section id="tab-sekolah" class="tab-panel">
+        <div class="grid">
+          <article class="card">
+            <h2>DB Sekolah — Peta Materi (Guru Menjelaskan)</h2>
+            <p class="muted mini">
+              Bayangkan database itu <b>lemari arsip sekolah</b>. Setiap tabel adalah <b>laci</b>.
+              Kalau kita menulis query, itu seperti kita memberi instruksi:
+              “Ambil data dari laci ini, pilih kertas yang ini, urutkan begini, tampilkan sekian.”
+            </p>
+
+            <div class="kpi" aria-label="peta singkat">
+              <div class="box">
+                <div class="label">Laci data inti</div>
+                <div class="val">siswa • kelas • buku</div>
+              </div>
+              <div class="box">
+                <div class="label">Laci penghubung</div>
+                <div class="val">siswa_kelas • nilai • peminjaman</div>
+              </div>
+              <div class="box">
+                <div class="label">Skill yang paling sering</div>
+                <div class="val">WHERE + JOIN + ORDER BY</div>
+              </div>
+            </div>
+
+            <div class="hint">
+              <b>Aturan emas membaca query (urut logika):</b>
+              <br>1) <b>FROM</b> ambil dari tabel mana,
+              2) <b>JOIN</b> gabungkan tabel lain (kalau perlu),
+              3) <b>WHERE</b> saring yang memenuhi syarat,
+              4) <b>ORDER BY</b> rapikan urutan,
+              5) <b>LIMIT</b> batasi jumlah hasil.
+            </div>
+
+                        <details open>
+              <summary>Struktur Database (SQL) <span class="tag">sumber</span></summary>
+              <div class="hint">
+                Silakan buka dokumen berikut untuk <b>CREATE DATABASE</b>, <b>CREATE TABLE</b>, dan <b>INSERT</b>.
+                Kamu bisa langsung <b>copy-paste</b> ke MySQL/MariaDB.
+                <div style="margin-top:8px">
+                  <a class="link" href="https://docs.google.com/document/d/1DOkZ7W270Qq957FoBFj63kZvC55MHfO2nGfH1PLH8Ng/edit?usp=sharing" target="_blank" rel="noopener">Buka dokumen struktur database</a>
+                </div>
+              </div>
+              <div class="note mini">
+                Catatan: setelah menjalankan skrip SQL pada dokumen tersebut, barulah query-query latihan di halaman ini bisa dicoba.
+              </div>
+            </details>
+    
+
+            <details>
+              <summary>Kesalahan umum (biar cepat paham) <span class="tag">hindari ini</span></summary>
+              <ul class="mini muted">
+                <li><b>Lupa WHERE</b> → data kebanyakan (terlihat “benar” tapi tidak sesuai tugas).</li>
+                <li><b>JOIN tanpa ON</b> → hasil meledak (cartesian product), datanya jadi tidak masuk akal.</li>
+                <li><b>LIMIT tanpa ORDER BY</b> → hasil “acak” (karena DB tidak wajib mengurutkan data).</li>
+                <li><b>Salah kutip</b>: string pakai <code>'...'</code>, angka tidak pakai kutip.</li>
+              </ul>
+            </details>
+          </article>
+
+          <aside class="card">
+            <h2>Playground Query — DB Sekolah</h2>
+            <p class="muted mini">Silakan klik: <b>copy query</b>, lalu buka <b>keterangan guru</b> untuk paham alasannya ✨</p>
+
+            <div class="q-list" id="q-sekolah">
+
+              <div class="q-item" data-search="select kolom siswa kontak nis nama alamat order by">
+                <div class="q-head">
+                  <div class="q-title">1) SELECT kolom penting (daftar kontak siswa)</div>
+                  <div class="badges">
+                    <span class="badge core">SELECT</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <div class="muted mini">Tujuan: ambil data yang “cukup”, bukan semua kolom.</div>
+                <pre><code>SELECT nis, nama, alamat
+FROM siswa
+ORDER BY nama ASC;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Kita pilih kolom yang relevan saja. <b>ORDER BY nama ASC</b> membuat daftar rapi seperti absen kelas (A → Z).
+                    <br><b>Analogi:</b> Kamu hanya fotokopi halaman yang dibutuhkan, bukan seluruh buku.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="where filter tahun masuk 2023 siswa">
+                <div class="q-head">
+                  <div class="q-title">2) WHERE — filter siswa angkatan 2023</div>
+                  <div class="badges">
+                    <span class="badge core">WHERE</span>
+                    <span class="badge filter">Filter</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nis, nama, tahun_masuk
+FROM siswa
+WHERE tahun_masuk = 2023;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> <b>WHERE</b> itu seperti “pilih siswa dengan syarat tertentu”.
+                    <br><b>Analogi:</b> Dari semua murid di sekolah, kamu dipanggilkan hanya yang “angkatan 2023”.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="and jenis kelamin perempuan 2023">
+                <div class="q-head">
+                  <div class="q-title">3) AND — perempuan angkatan 2023</div>
+                  <div class="badges">
+                    <span class="badge core">WHERE</span>
+                    <span class="badge filter">AND</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nis, nama, jenis_kelamin, tahun_masuk
+FROM siswa
+WHERE tahun_masuk = 2023 AND jenis_kelamin = 'P';</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> <b>AND</b> artinya dua syarat <i>wajib terpenuhi</i>.
+                    <br><b>Analogi:</b> “Masuk kelas” hanya untuk yang <b>pakai seragam</b> AND <b>punya kartu pelajar</b>.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="like judul buku bahasa wildcard persen">
+                <div class="q-head">
+                  <div class="q-title">4) LIKE — cari buku yang judulnya mengandung “Bahasa”</div>
+                  <div class="badges">
+                    <span class="badge core">LIKE</span>
+                    <span class="badge filter">Pola teks</span>
+                  </div>
+                </div>
+                <pre><code>SELECT id_buku, judul, penulis
+FROM buku
+WHERE judul LIKE '%Bahasa%';</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Tanda <b>%</b> = “boleh ada karakter apa saja”.
+                    <br><b>Analogi:</b> Kamu mencari di katalog: “Yang penting ada kata <b>Bahasa</b> di judulnya, depan-belakang bebas.”
+                    <br><b>Catatan:</b> Kalau “diawali Bahasa” pakai <code>'Bahasa%'</code>. Kalau “diakhiri Bahasa” pakai <code>'%Bahasa'</code>.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="in alamat jakarta depok bogor">
+                <div class="q-head">
+                  <div class="q-title">5) IN — filter alamat tertentu</div>
+                  <div class="badges">
+                    <span class="badge core">IN</span>
+                    <span class="badge filter">Daftar nilai</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nis, nama, alamat
+FROM siswa
+WHERE alamat IN ('Jakarta', 'Depok', 'Bogor');</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> <b>IN</b> itu seperti “pilih dari daftar pilihan”.
+                    <br><b>Analogi:</b> Dari daftar kota, kita centang Jakarta/Depok/Bogor saja.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="between tahun terbit 2019 2022 buku rentang inklusif">
+                <div class="q-head">
+                  <div class="q-title">6) BETWEEN — buku terbit 2019 s/d 2022</div>
+                  <div class="badges">
+                    <span class="badge core">BETWEEN</span>
+                    <span class="badge filter">Rentang</span>
+                  </div>
+                </div>
+                <pre><code>SELECT judul, tahun_terbit
+FROM buku
+WHERE tahun_terbit BETWEEN 2019 AND 2022;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> <b>BETWEEN</b> bersifat <i>inklusif</i>, artinya 2019 dan 2022 ikut.
+                    <br><b>Analogi:</b> Seperti aturan “nilai 80–90”, maka 80 dan 90 juga dihitung.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="order by stok desc limit 3 top buku">
+                <div class="q-head">
+                  <div class="q-title">7) ORDER BY + LIMIT — Top 3 stok terbanyak</div>
+                  <div class="badges">
+                    <span class="badge sort">ORDER BY</span>
+                    <span class="badge limit">LIMIT</span>
+                  </div>
+                </div>
+                <pre><code>SELECT judul, stok
+FROM buku
+ORDER BY stok DESC
+LIMIT 3;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Kita <b>urutkan dulu</b> stok dari besar ke kecil, baru ambil 3 teratas.
+                    <br><b>Analogi:</b> Seperti lomba lari: <b>urutkan pemenang</b> dulu, baru ambil juara 1–3.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="join siswa kelas tahun ajaran siswa_kelas">
+                <div class="q-head">
+                  <div class="q-title">8) JOIN — siswa + kelas + tahun ajaran (yang paling penting)</div>
+                  <div class="badges">
+                    <span class="badge join">JOIN</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <pre><code>SELECT s.nis, s.nama, k.nama_kelas, sk.tahun_ajaran
+FROM siswa s
+JOIN siswa_kelas sk ON s.id_siswa = sk.id_siswa
+JOIN kelas k ON sk.id_kelas = k.id_kelas
+ORDER BY k.nama_kelas, s.nama;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan + analogi</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan langkah demi langkah:</b>
+                    <br>1) <code>FROM siswa s</code> → mulai dari data siswa.
+                    <br>2) JOIN ke <code>siswa_kelas</code> → cari “baris penghubung” siapa siswa masuk kelas apa.
+                    <br>3) JOIN ke <code>kelas</code> → ambil nama kelasnya.
+                    <br><br><b>Analogi:</b> Kamu punya <b>daftar siswa</b> dan <b>daftar kelas</b>.
+                    Nah, <b>siswa_kelas</b> itu seperti <b>buku pembagian kelas</b> yang mencatat: “Siswa A masuk kelas X”.
+                    Tanpa buku pembagian itu, kamu tidak bisa menempelkan siswa ke kelas yang tepat.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="join peminjaman siswa buku status dipinjam perpustakaan">
+                <div class="q-head">
+                  <div class="q-title">9) JOIN — peminjaman aktif (nama siswa + judul buku)</div>
+                  <div class="badges">
+                    <span class="badge join">JOIN</span>
+                    <span class="badge filter">WHERE</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <pre><code>SELECT s.nama, b.judul, p.tanggal_pinjam, p.tanggal_kembali, p.status
+FROM peminjaman p
+JOIN siswa s ON p.id_siswa = s.id_siswa
+JOIN buku b ON p.id_buku = b.id_buku
+WHERE p.status = 'Dipinjam'
+ORDER BY p.tanggal_pinjam DESC;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Tabel peminjaman hanya menyimpan id_siswa & id_buku.
+                    JOIN membuat kita bisa menampilkan <b>nama siswa</b> dan <b>judul buku</b>.
+                    <br><b>Analogi:</b> Struk pinjaman menyimpan “kode siswa & kode buku”; kita buka katalog untuk ubah kode menjadi nama nyata.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="join nilai siswa mapel semester 1 nilai_angka">
+                <div class="q-head">
+                  <div class="q-title">10) JOIN — laporan nilai semester 1</div>
+                  <div class="badges">
+                    <span class="badge join">JOIN</span>
+                    <span class="badge filter">WHERE</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <pre><code>SELECT s.nama, m.nama_mapel, n.semester, n.nilai_angka
+FROM nilai n
+JOIN siswa s ON n.id_siswa = s.id_siswa
+JOIN mata_pelajaran m ON n.id_mapel = m.id_mapel
+WHERE n.semester = 1
+ORDER BY s.nama, m.nama_mapel;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Tabel <b>nilai</b> itu “jembatan” antara siswa dan mata pelajaran.
+                    <br><b>Analogi:</b> Seperti rapor: ada nama siswa, ada mapel, ada nilai. Data mentahnya tersebar, JOIN menyatukannya jadi “rapor”.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <details>
+              <summary>Latihan cepat (DB Sekolah) <span class="tag">3 menit</span></summary>
+              <ol class="mini muted">
+                <li>Tampilkan siswa <b>perempuan</b> yang <b>alamat Jakarta</b>.</li>
+                <li>Tampilkan buku <b>terbit setelah 2020</b> urut dari terbaru.</li>
+                <li>Tampilkan peminjaman yang <b>belum kembali</b> beserta <b>nama siswa</b> dan <b>judul buku</b>.</li>
+              </ol>
+              <div class="hint mini">
+                Petunjuk: gunakan WHERE + AND, ORDER BY, dan JOIN.
+              </div>
+            </details>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ===================== TAB: KULIAH ===================== -->
+      <section id="tab-kuliah" class="tab-panel hide">
+        <div class="grid">
+          <article class="card">
+            <h2>DB Kuliah — Peta Materi (Guru Menjelaskan)</h2>
+            <p class="muted mini">
+              Di kampus, data itu seperti <b>administrasi akademik</b>: mahasiswa, jurusan, fakultas, dosen, mata kuliah, dan KRS.
+              Tantangan utamanya biasanya <b>JOIN bertingkat</b> (mahasiswa → jurusan → fakultas) dan laporan KRS.
+            </p>
+
+            <div class="kpi">
+              <div class="box">
+                <div class="label">Laci data inti</div>
+                <div class="val">mahasiswa • dosen • mata_kuliah</div>
+              </div>
+              <div class="box">
+                <div class="label">Laci penghubung</div>
+                <div class="val">jurusan • fakultas • krs</div>
+              </div>
+              <div class="box">
+                <div class="label">Output populer</div>
+                <div class="val">KRS + Nilai per semester</div>
+              </div>
+            </div>
+
+            <div class="hint">
+              <b>Analogi JOIN bertingkat:</b>
+              <br>Nama mahasiswa itu “orangnya”. Jurusan dan fakultas itu “alamat akademiknya”.
+              Untuk menuliskan alamat lengkap, kamu harus melewati beberapa langkah: <b>mahasiswa → jurusan → fakultas</b>.
+            </div>
+
+                        <details open>
+              <summary>Struktur Database (SQL) <span class="tag">sumber</span></summary>
+              <div class="hint">
+                Silakan buka dokumen berikut untuk <b>CREATE DATABASE</b>, <b>CREATE TABLE</b>, dan <b>INSERT</b>.
+                Kamu bisa langsung <b>copy-paste</b> ke MySQL/MariaDB.
+                <div style="margin-top:8px">
+                  <a class="link" href="https://docs.google.com/document/d/1At66EVqwJPoAOWfgmXCSCHqINkiMNuoOJCN1gTL3eS4/edit?usp=sharing" target="_blank" rel="noopener">Buka dokumen struktur database</a>
+                </div>
+              </div>
+              <div class="note mini">
+                Catatan: setelah menjalankan skrip SQL pada dokumen tersebut, barulah query-query latihan di halaman ini bisa dicoba.
+              </div>
+            </details>
+    
+
+            <details>
+              <summary>Kesalahan umum (biar tidak kepleset) <span class="tag">cek dulu</span></summary>
+              <ul class="mini muted">
+                <li>Ingat: KRS menyimpan <b>id_mahasiswa</b> & <b>id_mk</b>, jadi untuk tampilkan nama harus JOIN.</li>
+                <li>Kalau ingin “dosen pengampu” → JOIN lagi dari mata_kuliah ke dosen.</li>
+                <li>Nilai KRS berupa <b>char</b> (A/B/C), jadi jangan dihitung sebagai angka.</li>
+              </ul>
+            </details>
+          </article>
+
+          <aside class="card">
+            <h2>Playground Query — DB Kuliah</h2>
+            <p class="muted mini">Klik untuk copy dan buka penjelasan guru ✨</p>
+
+            <div class="q-list" id="q-kuliah">
+
+              <div class="q-item" data-search="select mahasiswa nim nama angkatan order by desc asc">
+                <div class="q-head">
+                  <div class="q-title">1) SELECT + ORDER BY (daftar mahasiswa rapi)</div>
+                  <div class="badges">
+                    <span class="badge core">SELECT</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nim, nama, angkatan
+FROM mahasiswa
+ORDER BY angkatan DESC, nama ASC;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Angkatan terbaru dulu (<b>DESC</b>), lalu nama A–Z (<b>ASC</b>).
+                    <br><b>Analogi:</b> Data disusun seperti daftar mahasiswa per tahun masuk.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="where angkatan 2022 mahasiswa filter">
+                <div class="q-head">
+                  <div class="q-title">2) WHERE (angkatan 2022)</div>
+                  <div class="badges">
+                    <span class="badge core">WHERE</span>
+                    <span class="badge filter">Filter</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nim, nama, angkatan
+FROM mahasiswa
+WHERE angkatan = 2022;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Sama seperti menyaring daftar “angkatan 2022” saja.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="like dosen lina email">
+                <div class="q-head">
+                  <div class="q-title">3) LIKE (cari dosen mengandung “Lina”)</div>
+                  <div class="badges">
+                    <span class="badge core">LIKE</span>
+                    <span class="badge filter">Pola teks</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nama_dosen, email
+FROM dosen
+WHERE nama_dosen LIKE '%Lina%';</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> <code>%</code> itu wildcard. Yang penting “Lina” ada di mana pun.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="in jurusan 1 2 3 mahasiswa">
+                <div class="q-head">
+                  <div class="q-title">4) IN (mahasiswa jurusan tertentu)</div>
+                  <div class="badges">
+                    <span class="badge core">IN</span>
+                    <span class="badge filter">Daftar nilai</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nim, nama, id_jurusan
+FROM mahasiswa
+WHERE id_jurusan IN (1, 2, 3);</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> IN lebih singkat daripada OR berkali-kali.
+                    <br><b>Analogi:</b> Kamu memilih beberapa kelas sekaligus: “A, B, atau C”.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="between angkatan 2021 2022 mahasiswa rentang">
+                <div class="q-head">
+                  <div class="q-title">5) BETWEEN (angkatan 2021–2022)</div>
+                  <div class="badges">
+                    <span class="badge core">BETWEEN</span>
+                    <span class="badge filter">Rentang</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nim, nama, angkatan
+FROM mahasiswa
+WHERE angkatan BETWEEN 2021 AND 2022;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Rentang inklusif: 2021 & 2022 ikut.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="limit order by 3 mahasiswa">
+                <div class="q-head">
+                  <div class="q-title">6) ORDER BY + LIMIT (ambil 3 baris)</div>
+                  <div class="badges">
+                    <span class="badge sort">ORDER BY</span>
+                    <span class="badge limit">LIMIT</span>
+                  </div>
+                </div>
+                <pre><code>SELECT nim, nama
+FROM mahasiswa
+ORDER BY nama ASC
+LIMIT 3;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> LIMIT tanpa ORDER BY bisa “acak”. Maka kita rapikan dulu, baru ambil 3.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="join mahasiswa jurusan fakultas bertingkat">
+                <div class="q-head">
+                  <div class="q-title">7) JOIN bertingkat (mahasiswa + jurusan + fakultas)</div>
+                  <div class="badges">
+                    <span class="badge join">JOIN</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <pre><code>SELECT m.nim, m.nama, j.nama_jurusan, f.nama_fakultas, m.angkatan
+FROM mahasiswa m
+JOIN jurusan j ON m.id_jurusan = j.id_jurusan
+JOIN fakultas f ON j.id_fakultas = f.id_fakultas
+ORDER BY f.nama_fakultas, j.nama_jurusan, m.nama;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan + analogi</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Langkah mudah:</b>
+                    <br>1) Mulai dari <b>mahasiswa</b>,
+                    <br>2) sambungkan ke <b>jurusan</b> (pakai id_jurusan),
+                    <br>3) sambungkan jurusan ke <b>fakultas</b> (pakai id_fakultas).
+                    <br><br><b>Analogi:</b> Menulis alamat lengkap:
+                    orangnya (mahasiswa) → RT/RW (jurusan) → kelurahan (fakultas). Bertahap, jangan lompat.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="join mata_kuliah dosen jurusan">
+                <div class="q-head">
+                  <div class="q-title">8) JOIN (mata kuliah + jurusan + dosen)</div>
+                  <div class="badges">
+                    <span class="badge join">JOIN</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <pre><code>SELECT mk.kode_mk, mk.nama_mk, mk.sks, j.nama_jurusan, d.nama_dosen
+FROM mata_kuliah mk
+JOIN jurusan j ON mk.id_jurusan = j.id_jurusan
+JOIN dosen d ON mk.id_dosen = d.id_dosen
+ORDER BY j.nama_jurusan, mk.kode_mk;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Mata kuliah punya dosen pengampu. JOIN membantu menampilkan nama dosen, bukan cuma id.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="join krs mahasiswa mata_kuliah nilai semester 1">
+                <div class="q-head">
+                  <div class="q-title">9) JOIN (laporan KRS semester 1)</div>
+                  <div class="badges">
+                    <span class="badge join">JOIN</span>
+                    <span class="badge filter">WHERE</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <pre><code>SELECT m.nim, m.nama, mk.kode_mk, mk.nama_mk, k.semester, k.nilai
+FROM krs k
+JOIN mahasiswa m ON k.id_mahasiswa = m.id_mahasiswa
+JOIN mata_kuliah mk ON k.id_mk = mk.id_mk
+WHERE k.semester = 1
+ORDER BY m.nama, mk.kode_mk;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> KRS itu “catatan pengambilan MK”. Maka harus disambungkan ke mahasiswa dan MK.
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-item" data-search="join krs mata_kuliah dosen mahasiswa semester 3">
+                <div class="q-head">
+                  <div class="q-title">10) JOIN lanjutan (KRS + dosen pengampu)</div>
+                  <div class="badges">
+                    <span class="badge join">JOIN</span>
+                    <span class="badge filter">WHERE</span>
+                    <span class="badge sort">ORDER BY</span>
+                  </div>
+                </div>
+                <pre><code>SELECT m.nim, m.nama, mk.kode_mk, mk.nama_mk, d.nama_dosen, k.semester, k.nilai
+FROM krs k
+JOIN mahasiswa m ON k.id_mahasiswa = m.id_mahasiswa
+JOIN mata_kuliah mk ON k.id_mk = mk.id_mk
+JOIN dosen d ON mk.id_dosen = d.id_dosen
+WHERE k.semester = 3
+ORDER BY m.nama, mk.kode_mk;</code></pre>
+                <div class="q-actions">
+                  <button class="btn" data-copy>Copy query</button>
+                  <button class="btn ghost" data-explain>Keterangan</button>
+                </div>
+                <div class="explain hide">
+                  <div class="hint">
+                    <b>Penjelasan:</b> Ini versi “lengkap” laporan KRS: mahasiswa + MK + dosen + nilai.
+                    <br><b>Analogi:</b> Seperti KHS: siapa mahasiswa, mata kuliah apa, siapa dosennya, nilai berapa.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <details>
+              <summary>Latihan cepat (DB Kuliah) <span class="tag">3 menit</span></summary>
+              <ol class="mini muted">
+                <li>Tampilkan mahasiswa <b>jurusan Sistem Informasi</b> (id_jurusan = 2) angkatan 2021.</li>
+                <li>Tampilkan mata kuliah dengan <b>SKS ≥ 3</b> beserta dosennya.</li>
+                <li>Tampilkan KRS semester 1 beserta <b>nama mahasiswa</b>, <b>nama MK</b>, dan <b>dosen pengampu</b>.</li>
+              </ol>
+              <div class="hint mini">
+                Petunjuk: WHERE + AND, JOIN ke dosen lewat mata_kuliah.
+              </div>
+            </details>
+          </aside>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:16px">
+        <h2>Ringkasan Cepat</h2>
+        <div class="summary-grid">
+          <div class="summary-box">
+            <div class="summary-title">SELECT</div>
+            <div class="muted mini">Pilih kolom yang mau ditampilkan.</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-title">WHERE</div>
+            <div class="muted mini">Saring baris sesuai syarat.</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-title">LIKE</div>
+            <div class="muted mini">Cari teks dengan pola (pakai %).</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-title">IN / BETWEEN</div>
+            <div class="muted mini">Filter daftar / rentang nilai.</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-title">ORDER BY</div>
+            <div class="muted mini">Rapikan urutan hasil.</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-title">LIMIT</div>
+            <div class="muted mini">Batasi jumlah baris.</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-title">JOIN</div>
+            <div class="muted mini">Gabungkan tabel pakai kolom kunci (PK/FK).</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">Materi ini siap dipakai untuk presentasi atau latihan. Buka <b>index.html</b> di browser.</div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Tersalin ✅</div>
+
+  <script src="./assets/app.js"></script>
+</body>
+</html>
