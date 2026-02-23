@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modul SQL Lanjutan (MySQL) — Kelas XI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand__title">SQL Lanjutan</div>
+        <div class="brand__sub">MySQL (XAMPP / AMPPS) • Kelas XI</div>
+      </div>
+
+      <nav class="toc">
+        <a href="#tujuan" class="toc__link">Tujuan</a>
+        <a href="#alur" class="toc__link">Alur Berpikir</a>
+        <a href="#setup" class="toc__link">Source Database</a>
+        <a href="#materi" class="toc__link">Materi Inti</a>
+        <a href="#latihan" class="toc__link">Latihan (db_sekolah)</a>
+        <a href="#tugas" class="toc__link">Tugas (db_kuliah)</a>
+        <a href="#pengumpulan" class="toc__link">Pengumpulan</a>
+      </nav>
+
+      <div class="panel">
+        <div class="panel__title">Aturan Praktik</div>
+        <ul class="panel__list">
+          <li>Jalankan query di phpMyAdmin (tab SQL).</li>
+          <li>Ikuti urutan: SELECT → FROM → WHERE → ORDER BY → LIMIT.</li>
+          <li>Query harus rapi: baris baru dan indent.</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="hero">
+        <div class="hero__card">
+          <h1>Modul SQL Lanjutan</h1>
+          <p>
+            Fokus pembelajaran: <strong>SELECT, WHERE, AND/OR/NOT, LIKE, IN, BETWEEN, ORDER BY, LIMIT</strong>.
+            Latihan menggunakan <strong>db_sekolah</strong> dan tugas menggunakan <strong>db_kuliah</strong>.
+          </p>
+          <div class="hero__chips">
+            <span class="chip">MySQL</span>
+            <span class="chip">phpMyAdmin</span>
+            <span class="chip">Latihan logika</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="tujuan" class="section">
+        <h2>Tujuan</h2>
+        <div class="grid2">
+          <div class="card">
+            <h3>Kompetensi</h3>
+            <ul>
+              <li>Menampilkan kolom yang tepat dengan <code>SELECT</code>.</li>
+              <li>Menyaring data dengan <code>WHERE</code> dan logika <code>AND/OR/NOT</code>.</li>
+              <li>Mencari teks memakai <code>LIKE</code>.</li>
+              <li>Memilih beberapa nilai memakai <code>IN</code>.</li>
+              <li>Memilih rentang memakai <code>BETWEEN</code>.</li>
+              <li>Merapikan dan membatasi hasil memakai <code>ORDER BY</code> dan <code>LIMIT</code>.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Catatan</h3>
+            <p class="muted">
+              Pada modul ini kita belum masuk JOIN dan fungsi agregat. Kita kuatkan dulu dasar lanjutan sesuai materi kelas.
+            </p>
+            <div class="callout">
+              <strong>Target minimal</strong>
+              <div class="muted">Kalian mampu membuat query gabungan: WHERE + LIKE/IN/BETWEEN + ORDER BY + LIMIT.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="alur" class="section">
+        <h2>Alur Berpikir</h2>
+        <p>Ikuti urutan ini setiap membuat query agar hasil mudah dicek dan tidak membingungkan.</p>
+        <ol class="steps">
+          <li><strong>Pilih kolom</strong> → <code>SELECT</code></li>
+          <li><strong>Pilih tabel</strong> → <code>FROM</code></li>
+          <li><strong>Tambah syarat</strong> → <code>WHERE</code></li>
+          <li><strong>Urutkan hasil</strong> → <code>ORDER BY</code></li>
+          <li><strong>Batasi hasil</strong> → <code>LIMIT</code></li>
+        </ol>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>Contoh query rapi</h3>
+            <div class="codebar"><button class="btn btn--small" data-copy="c1">Copy</button></div>
+            <pre class="code" id="c1" data-raw="SELECT nis, nama
+FROM siswa
+WHERE alamat = &#x27;Jakarta&#x27;
+ORDER BY nama ASC
+LIMIT 5;"><code>SELECT nis, nama
+FROM siswa
+WHERE alamat = &#x27;Jakarta&#x27;
+ORDER BY nama ASC
+LIMIT 5;</code></pre>
+          </div>
+          <div class="card">
+            <h3>Hal yang sering keliru</h3>
+            <ul>
+              <li>Teks wajib pakai petik satu: <code>'Jakarta'</code>.</li>
+              <li>Nama kolom harus persis sesuai tabel.</li>
+              <li>ORDER BY + LIMIT dipakai jika ingin “Top data”.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="setup" class="section">
+        <h2>Source Database</h2>
+        <p class="muted">Klik tab untuk melihat source code. Gunakan tombol Copy agar tidak salah saat menyalin.</p>
+
+        <div class="tabs">
+          <button class="tab is-active" data-tab="sekolah">db_sekolah</button>
+          <button class="tab" data-tab="kuliah">db_kuliah</button>
+        </div>
+
+        <div class="tabpanes">
+          <div class="pane is-active" id="pane-sekolah">
+            <div class="pane__head">
+              <h3>db_sekolah</h3>
+              <button class="btn btn--small" data-copy="dbs">Copy SQL</button>
+            </div>
+            <pre class="code" id="dbs" data-raw="CREATE DATABASE db_sekolah;
+
+CREATE TABLE siswa (
+    id_siswa INT AUTO_INCREMENT PRIMARY KEY,
+    nis VARCHAR(20) UNIQUE,
+    nama VARCHAR(100) NOT NULL,
+    jenis_kelamin ENUM(&#x27;L&#x27;,&#x27;P&#x27;),
+    tanggal_lahir DATE,
+    alamat TEXT,
+    tahun_masuk YEAR
+);
+
+CREATE TABLE kelas (
+    id_kelas INT AUTO_INCREMENT PRIMARY KEY,
+    nama_kelas VARCHAR(20),
+    wali_kelas VARCHAR(100)
+);
+
+CREATE TABLE siswa_kelas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_siswa INT,
+    id_kelas INT,
+    tahun_ajaran VARCHAR(9),
+    FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
+    FOREIGN KEY (id_kelas) REFERENCES kelas(id_kelas)
+);
+
+CREATE TABLE mata_pelajaran (
+    id_mapel INT AUTO_INCREMENT PRIMARY KEY,
+    nama_mapel VARCHAR(100)
+);
+
+CREATE TABLE nilai (
+    id_nilai INT AUTO_INCREMENT PRIMARY KEY,
+    id_siswa INT,
+    id_mapel INT,
+    semester INT,
+    nilai_angka DECIMAL(5,2),
+    FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
+    FOREIGN KEY (id_mapel) REFERENCES mata_pelajaran(id_mapel)
+);
+
+CREATE TABLE buku (
+    id_buku INT AUTO_INCREMENT PRIMARY KEY,
+    judul VARCHAR(150),
+    penulis VARCHAR(100),
+    tahun_terbit YEAR,
+    stok INT
+);
+
+CREATE TABLE peminjaman (
+    id_pinjam INT AUTO_INCREMENT PRIMARY KEY,
+    id_siswa INT,
+    id_buku INT,
+    tanggal_pinjam DATE,
+    tanggal_kembali DATE,
+    status VARCHAR(20),
+    FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
+    FOREIGN KEY (id_buku) REFERENCES buku(id_buku)
+);
+
+INSERT INTO siswa (nis, nama, jenis_kelamin, tanggal_lahir, alamat, tahun_masuk) VALUES
+(&#x27;S001&#x27;,&#x27;Ahmad Rizky&#x27;,&#x27;L&#x27;,&#x27;2008-01-12&#x27;,&#x27;Jakarta&#x27;,2023),
+(&#x27;S002&#x27;,&#x27;Siti Aisyah&#x27;,&#x27;P&#x27;,&#x27;2008-03-22&#x27;,&#x27;Jakarta&#x27;,2023),
+(&#x27;S003&#x27;,&#x27;Budi Santoso&#x27;,&#x27;L&#x27;,&#x27;2007-11-10&#x27;,&#x27;Depok&#x27;,2022),
+(&#x27;S004&#x27;,&#x27;Dewi Lestari&#x27;,&#x27;P&#x27;,&#x27;2008-05-17&#x27;,&#x27;Bogor&#x27;,2023),
+(&#x27;S005&#x27;,&#x27;Rian Pratama&#x27;,&#x27;L&#x27;,&#x27;2007-09-02&#x27;,&#x27;Bekasi&#x27;,2022),
+(&#x27;S006&#x27;,&#x27;Nabila Putri&#x27;,&#x27;P&#x27;,&#x27;2008-07-19&#x27;,&#x27;Jakarta&#x27;,2023),
+(&#x27;S007&#x27;,&#x27;Fajar Nugroho&#x27;,&#x27;L&#x27;,&#x27;2007-12-30&#x27;,&#x27;Tangerang&#x27;,2022),
+(&#x27;S008&#x27;,&#x27;Maya Sari&#x27;,&#x27;P&#x27;,&#x27;2008-02-14&#x27;,&#x27;Depok&#x27;,2023),
+(&#x27;S009&#x27;,&#x27;Yoga Saputra&#x27;,&#x27;L&#x27;,&#x27;2007-06-25&#x27;,&#x27;Bekasi&#x27;,2022),
+(&#x27;S010&#x27;,&#x27;Intan Permata&#x27;,&#x27;P&#x27;,&#x27;2008-10-11&#x27;,&#x27;Bogor&#x27;,2023);
+
+INSERT INTO kelas (nama_kelas, wali_kelas) VALUES
+(&#x27;X IPA 1&#x27;,&#x27;Pak Andi&#x27;),
+(&#x27;X IPA 2&#x27;,&#x27;Bu Rina&#x27;),
+(&#x27;XI IPA 1&#x27;,&#x27;Pak Budi&#x27;),
+(&#x27;XI IPS 1&#x27;,&#x27;Bu Sari&#x27;),
+(&#x27;XII IPA 1&#x27;,&#x27;Pak Joko&#x27;);
+
+INSERT INTO siswa_kelas (id_siswa, id_kelas, tahun_ajaran) VALUES
+(1,1,&#x27;2023/2024&#x27;),
+(2,1,&#x27;2023/2024&#x27;),
+(3,3,&#x27;2023/2024&#x27;),
+(4,2,&#x27;2023/2024&#x27;),
+(5,3,&#x27;2023/2024&#x27;),
+(6,2,&#x27;2023/2024&#x27;),
+(7,4,&#x27;2023/2024&#x27;),
+(8,1,&#x27;2023/2024&#x27;),
+(9,5,&#x27;2023/2024&#x27;),
+(10,2,&#x27;2023/2024&#x27;);
+
+INSERT INTO mata_pelajaran (nama_mapel) VALUES
+(&#x27;Matematika&#x27;),
+(&#x27;Bahasa Indonesia&#x27;),
+(&#x27;Bahasa Inggris&#x27;),
+(&#x27;Fisika&#x27;),
+(&#x27;Kimia&#x27;),
+(&#x27;Sejarah&#x27;);
+
+INSERT INTO nilai (id_siswa, id_mapel, semester, nilai_angka) VALUES
+(1,1,1,88),
+(1,2,1,90),
+(2,1,1,85),
+(3,4,1,78),
+(4,5,1,92),
+(5,1,1,70),
+(6,3,1,89),
+(7,6,1,75),
+(8,2,1,95),
+(9,4,1,80);
+
+INSERT INTO buku (judul, penulis, tahun_terbit, stok) VALUES
+(&#x27;Algoritma Dasar&#x27;,&#x27;Eko Prasetyo&#x27;,2020,5),
+(&#x27;Fisika SMA&#x27;,&#x27;Bambang S&#x27;,2019,4),
+(&#x27;Sejarah Indonesia&#x27;,&#x27;Ratna Dewi&#x27;,2018,6),
+(&#x27;Bahasa Inggris Aktif&#x27;,&#x27;John Doe&#x27;,2021,3),
+(&#x27;Matematika Cepat&#x27;,&#x27;Andi Wijaya&#x27;,2022,7);
+
+INSERT INTO peminjaman (id_siswa, id_buku, tanggal_pinjam, tanggal_kembali, status) VALUES
+(1,1,&#x27;2024-01-10&#x27;,&#x27;2024-01-17&#x27;,&#x27;Kembali&#x27;),
+(2,3,&#x27;2024-01-12&#x27;,&#x27;2024-01-19&#x27;,&#x27;Kembali&#x27;),
+(3,2,&#x27;2024-01-15&#x27;,NULL,&#x27;Dipinjam&#x27;),
+(4,5,&#x27;2024-01-18&#x27;,&#x27;2024-01-25&#x27;,&#x27;Kembali&#x27;),
+(5,4,&#x27;2024-01-20&#x27;,NULL,&#x27;Dipinjam&#x27;);"><code>CREATE DATABASE db_sekolah;
+
+CREATE TABLE siswa (
+    id_siswa INT AUTO_INCREMENT PRIMARY KEY,
+    nis VARCHAR(20) UNIQUE,
+    nama VARCHAR(100) NOT NULL,
+    jenis_kelamin ENUM(&#x27;L&#x27;,&#x27;P&#x27;),
+    tanggal_lahir DATE,
+    alamat TEXT,
+    tahun_masuk YEAR
+);
+
+CREATE TABLE kelas (
+    id_kelas INT AUTO_INCREMENT PRIMARY KEY,
+    nama_kelas VARCHAR(20),
+    wali_kelas VARCHAR(100)
+);
+
+CREATE TABLE siswa_kelas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_siswa INT,
+    id_kelas INT,
+    tahun_ajaran VARCHAR(9),
+    FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
+    FOREIGN KEY (id_kelas) REFERENCES kelas(id_kelas)
+);
+
+CREATE TABLE mata_pelajaran (
+    id_mapel INT AUTO_INCREMENT PRIMARY KEY,
+    nama_mapel VARCHAR(100)
+);
+
+CREATE TABLE nilai (
+    id_nilai INT AUTO_INCREMENT PRIMARY KEY,
+    id_siswa INT,
+    id_mapel INT,
+    semester INT,
+    nilai_angka DECIMAL(5,2),
+    FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
+    FOREIGN KEY (id_mapel) REFERENCES mata_pelajaran(id_mapel)
+);
+
+CREATE TABLE buku (
+    id_buku INT AUTO_INCREMENT PRIMARY KEY,
+    judul VARCHAR(150),
+    penulis VARCHAR(100),
+    tahun_terbit YEAR,
+    stok INT
+);
+
+CREATE TABLE peminjaman (
+    id_pinjam INT AUTO_INCREMENT PRIMARY KEY,
+    id_siswa INT,
+    id_buku INT,
+    tanggal_pinjam DATE,
+    tanggal_kembali DATE,
+    status VARCHAR(20),
+    FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
+    FOREIGN KEY (id_buku) REFERENCES buku(id_buku)
+);
+
+INSERT INTO siswa (nis, nama, jenis_kelamin, tanggal_lahir, alamat, tahun_masuk) VALUES
+(&#x27;S001&#x27;,&#x27;Ahmad Rizky&#x27;,&#x27;L&#x27;,&#x27;2008-01-12&#x27;,&#x27;Jakarta&#x27;,2023),
+(&#x27;S002&#x27;,&#x27;Siti Aisyah&#x27;,&#x27;P&#x27;,&#x27;2008-03-22&#x27;,&#x27;Jakarta&#x27;,2023),
+(&#x27;S003&#x27;,&#x27;Budi Santoso&#x27;,&#x27;L&#x27;,&#x27;2007-11-10&#x27;,&#x27;Depok&#x27;,2022),
+(&#x27;S004&#x27;,&#x27;Dewi Lestari&#x27;,&#x27;P&#x27;,&#x27;2008-05-17&#x27;,&#x27;Bogor&#x27;,2023),
+(&#x27;S005&#x27;,&#x27;Rian Pratama&#x27;,&#x27;L&#x27;,&#x27;2007-09-02&#x27;,&#x27;Bekasi&#x27;,2022),
+(&#x27;S006&#x27;,&#x27;Nabila Putri&#x27;,&#x27;P&#x27;,&#x27;2008-07-19&#x27;,&#x27;Jakarta&#x27;,2023),
+(&#x27;S007&#x27;,&#x27;Fajar Nugroho&#x27;,&#x27;L&#x27;,&#x27;2007-12-30&#x27;,&#x27;Tangerang&#x27;,2022),
+(&#x27;S008&#x27;,&#x27;Maya Sari&#x27;,&#x27;P&#x27;,&#x27;2008-02-14&#x27;,&#x27;Depok&#x27;,2023),
+(&#x27;S009&#x27;,&#x27;Yoga Saputra&#x27;,&#x27;L&#x27;,&#x27;2007-06-25&#x27;,&#x27;Bekasi&#x27;,2022),
+(&#x27;S010&#x27;,&#x27;Intan Permata&#x27;,&#x27;P&#x27;,&#x27;2008-10-11&#x27;,&#x27;Bogor&#x27;,2023);
+
+INSERT INTO kelas (nama_kelas, wali_kelas) VALUES
+(&#x27;X IPA 1&#x27;,&#x27;Pak Andi&#x27;),
+(&#x27;X IPA 2&#x27;,&#x27;Bu Rina&#x27;),
+(&#x27;XI IPA 1&#x27;,&#x27;Pak Budi&#x27;),
+(&#x27;XI IPS 1&#x27;,&#x27;Bu Sari&#x27;),
+(&#x27;XII IPA 1&#x27;,&#x27;Pak Joko&#x27;);
+
+INSERT INTO siswa_kelas (id_siswa, id_kelas, tahun_ajaran) VALUES
+(1,1,&#x27;2023/2024&#x27;),
+(2,1,&#x27;2023/2024&#x27;),
+(3,3,&#x27;2023/2024&#x27;),
+(4,2,&#x27;2023/2024&#x27;),
+(5,3,&#x27;2023/2024&#x27;),
+(6,2,&#x27;2023/2024&#x27;),
+(7,4,&#x27;2023/2024&#x27;),
+(8,1,&#x27;2023/2024&#x27;),
+(9,5,&#x27;2023/2024&#x27;),
+(10,2,&#x27;2023/2024&#x27;);
+
+INSERT INTO mata_pelajaran (nama_mapel) VALUES
+(&#x27;Matematika&#x27;),
+(&#x27;Bahasa Indonesia&#x27;),
+(&#x27;Bahasa Inggris&#x27;),
+(&#x27;Fisika&#x27;),
+(&#x27;Kimia&#x27;),
+(&#x27;Sejarah&#x27;);
+
+INSERT INTO nilai (id_siswa, id_mapel, semester, nilai_angka) VALUES
+(1,1,1,88),
+(1,2,1,90),
+(2,1,1,85),
+(3,4,1,78),
+(4,5,1,92),
+(5,1,1,70),
+(6,3,1,89),
+(7,6,1,75),
+(8,2,1,95),
+(9,4,1,80);
+
+INSERT INTO buku (judul, penulis, tahun_terbit, stok) VALUES
+(&#x27;Algoritma Dasar&#x27;,&#x27;Eko Prasetyo&#x27;,2020,5),
+(&#x27;Fisika SMA&#x27;,&#x27;Bambang S&#x27;,2019,4),
+(&#x27;Sejarah Indonesia&#x27;,&#x27;Ratna Dewi&#x27;,2018,6),
+(&#x27;Bahasa Inggris Aktif&#x27;,&#x27;John Doe&#x27;,2021,3),
+(&#x27;Matematika Cepat&#x27;,&#x27;Andi Wijaya&#x27;,2022,7);
+
+INSERT INTO peminjaman (id_siswa, id_buku, tanggal_pinjam, tanggal_kembali, status) VALUES
+(1,1,&#x27;2024-01-10&#x27;,&#x27;2024-01-17&#x27;,&#x27;Kembali&#x27;),
+(2,3,&#x27;2024-01-12&#x27;,&#x27;2024-01-19&#x27;,&#x27;Kembali&#x27;),
+(3,2,&#x27;2024-01-15&#x27;,NULL,&#x27;Dipinjam&#x27;),
+(4,5,&#x27;2024-01-18&#x27;,&#x27;2024-01-25&#x27;,&#x27;Kembali&#x27;),
+(5,4,&#x27;2024-01-20&#x27;,NULL,&#x27;Dipinjam&#x27;);</code></pre>
+          </div>
+
+          <div class="pane" id="pane-kuliah">
+            <div class="pane__head">
+              <h3>db_kuliah</h3>
+              <button class="btn btn--small" data-copy="dbk">Copy SQL</button>
+            </div>
+            <pre class="code" id="dbk" data-raw="CREATE DATABASE db_kuliah;
+
+CREATE TABLE fakultas (
+    id_fakultas INT AUTO_INCREMENT PRIMARY KEY,
+    nama_fakultas VARCHAR(100)
+);
+
+CREATE TABLE jurusan (
+    id_jurusan INT AUTO_INCREMENT PRIMARY KEY,
+    id_fakultas INT,
+    nama_jurusan VARCHAR(100),
+    FOREIGN KEY (id_fakultas) REFERENCES fakultas(id_fakultas)
+);
+
+CREATE TABLE mahasiswa (
+    id_mahasiswa INT AUTO_INCREMENT PRIMARY KEY,
+    nim VARCHAR(20) UNIQUE,
+    nama VARCHAR(100),
+    jenis_kelamin ENUM(&#x27;L&#x27;,&#x27;P&#x27;),
+    tanggal_lahir DATE,
+    id_jurusan INT,
+    angkatan YEAR,
+    FOREIGN KEY (id_jurusan) REFERENCES jurusan(id_jurusan)
+);
+
+CREATE TABLE dosen (
+    id_dosen INT AUTO_INCREMENT PRIMARY KEY,
+    nama_dosen VARCHAR(100),
+    email VARCHAR(100)
+);
+
+CREATE TABLE mata_kuliah (
+    id_mk INT AUTO_INCREMENT PRIMARY KEY,
+    kode_mk VARCHAR(10),
+    nama_mk VARCHAR(100),
+    sks INT,
+    id_jurusan INT,
+    id_dosen INT,
+    FOREIGN KEY (id_jurusan) REFERENCES jurusan(id_jurusan),
+    FOREIGN KEY (id_dosen) REFERENCES dosen(id_dosen)
+);
+
+CREATE TABLE krs (
+    id_krs INT AUTO_INCREMENT PRIMARY KEY,
+    id_mahasiswa INT,
+    id_mk INT,
+    semester INT,
+    nilai CHAR(2),
+    FOREIGN KEY (id_mahasiswa) REFERENCES mahasiswa(id_mahasiswa),
+    FOREIGN KEY (id_mk) REFERENCES mata_kuliah(id_mk)
+);
+
+INSERT INTO fakultas (nama_fakultas) VALUES
+(&#x27;Fakultas Ilmu Komputer&#x27;),
+(&#x27;Fakultas Ekonomi&#x27;),
+(&#x27;Fakultas Teknik&#x27;);
+
+INSERT INTO jurusan (id_fakultas, nama_jurusan) VALUES
+(1,&#x27;Teknik Informatika&#x27;),
+(1,&#x27;Sistem Informasi&#x27;),
+(2,&#x27;Manajemen&#x27;),
+(3,&#x27;Teknik Sipil&#x27;),
+(3,&#x27;Teknik Elektro&#x27;);
+
+INSERT INTO mahasiswa (nim, nama, jenis_kelamin, tanggal_lahir, id_jurusan, angkatan) VALUES
+(&#x27;22001&#x27;,&#x27;Andi Saputra&#x27;,&#x27;L&#x27;,&#x27;2004-01-10&#x27;,1,2022),
+(&#x27;22002&#x27;,&#x27;Siti Rahma&#x27;,&#x27;P&#x27;,&#x27;2004-05-12&#x27;,1,2022),
+(&#x27;22003&#x27;,&#x27;Budi Hartono&#x27;,&#x27;L&#x27;,&#x27;2003-08-22&#x27;,2,2021),
+(&#x27;22004&#x27;,&#x27;Dewi Anggraini&#x27;,&#x27;P&#x27;,&#x27;2004-02-18&#x27;,3,2022),
+(&#x27;22005&#x27;,&#x27;Rian Maulana&#x27;,&#x27;L&#x27;,&#x27;2003-12-09&#x27;,4,2021),
+(&#x27;22006&#x27;,&#x27;Nabila Sari&#x27;,&#x27;P&#x27;,&#x27;2004-04-27&#x27;,5,2022),
+(&#x27;22007&#x27;,&#x27;Fajar Hidayat&#x27;,&#x27;L&#x27;,&#x27;2003-06-15&#x27;,2,2021),
+(&#x27;22008&#x27;,&#x27;Maya Putri&#x27;,&#x27;P&#x27;,&#x27;2004-09-30&#x27;,3,2022),
+(&#x27;22009&#x27;,&#x27;Yoga Pratama&#x27;,&#x27;L&#x27;,&#x27;2003-11-11&#x27;,1,2021),
+(&#x27;22010&#x27;,&#x27;Intan Lestari&#x27;,&#x27;P&#x27;,&#x27;2004-07-21&#x27;,5,2022);
+
+INSERT INTO dosen (nama_dosen, email) VALUES
+(&#x27;Dr. Ahmad Fauzi&#x27;,&#x27;ahmad@kampus.ac.id&#x27;),
+(&#x27;Prof. Lina Marlina&#x27;,&#x27;lina@kampus.ac.id&#x27;),
+(&#x27;Rudi Hartono&#x27;,&#x27;rudi@kampus.ac.id&#x27;),
+(&#x27;Sari Wulandari&#x27;,&#x27;sari@kampus.ac.id&#x27;),
+(&#x27;Bambang Setiawan&#x27;,&#x27;bambang@kampus.ac.id&#x27;);
+
+INSERT INTO mata_kuliah (kode_mk, nama_mk, sks, id_jurusan, id_dosen) VALUES
+(&#x27;IF101&#x27;,&#x27;Algoritma&#x27;,3,1,1),
+(&#x27;IF102&#x27;,&#x27;Basis Data&#x27;,3,1,3),
+(&#x27;SI201&#x27;,&#x27;Analisis Sistem&#x27;,3,2,2),
+(&#x27;MN101&#x27;,&#x27;Manajemen Dasar&#x27;,2,3,4),
+(&#x27;TS101&#x27;,&#x27;Struktur Bangunan&#x27;,3,4,5),
+(&#x27;TE101&#x27;,&#x27;Rangkaian Listrik&#x27;,3,5,5);
+
+INSERT INTO krs (id_mahasiswa, id_mk, semester, nilai) VALUES
+(1,1,1,&#x27;A&#x27;),
+(1,2,1,&#x27;B&#x27;),
+(2,1,1,&#x27;A&#x27;),
+(3,3,3,&#x27;B&#x27;),
+(4,4,1,&#x27;A&#x27;),
+(5,5,3,&#x27;C&#x27;),
+(6,6,1,&#x27;B&#x27;),
+(7,3,3,&#x27;A&#x27;),
+(8,4,1,&#x27;A&#x27;),
+(9,2,3,&#x27;B&#x27;);"><code>CREATE DATABASE db_kuliah;
+
+CREATE TABLE fakultas (
+    id_fakultas INT AUTO_INCREMENT PRIMARY KEY,
+    nama_fakultas VARCHAR(100)
+);
+
+CREATE TABLE jurusan (
+    id_jurusan INT AUTO_INCREMENT PRIMARY KEY,
+    id_fakultas INT,
+    nama_jurusan VARCHAR(100),
+    FOREIGN KEY (id_fakultas) REFERENCES fakultas(id_fakultas)
+);
+
+CREATE TABLE mahasiswa (
+    id_mahasiswa INT AUTO_INCREMENT PRIMARY KEY,
+    nim VARCHAR(20) UNIQUE,
+    nama VARCHAR(100),
+    jenis_kelamin ENUM(&#x27;L&#x27;,&#x27;P&#x27;),
+    tanggal_lahir DATE,
+    id_jurusan INT,
+    angkatan YEAR,
+    FOREIGN KEY (id_jurusan) REFERENCES jurusan(id_jurusan)
+);
+
+CREATE TABLE dosen (
+    id_dosen INT AUTO_INCREMENT PRIMARY KEY,
+    nama_dosen VARCHAR(100),
+    email VARCHAR(100)
+);
+
+CREATE TABLE mata_kuliah (
+    id_mk INT AUTO_INCREMENT PRIMARY KEY,
+    kode_mk VARCHAR(10),
+    nama_mk VARCHAR(100),
+    sks INT,
+    id_jurusan INT,
+    id_dosen INT,
+    FOREIGN KEY (id_jurusan) REFERENCES jurusan(id_jurusan),
+    FOREIGN KEY (id_dosen) REFERENCES dosen(id_dosen)
+);
+
+CREATE TABLE krs (
+    id_krs INT AUTO_INCREMENT PRIMARY KEY,
+    id_mahasiswa INT,
+    id_mk INT,
+    semester INT,
+    nilai CHAR(2),
+    FOREIGN KEY (id_mahasiswa) REFERENCES mahasiswa(id_mahasiswa),
+    FOREIGN KEY (id_mk) REFERENCES mata_kuliah(id_mk)
+);
+
+INSERT INTO fakultas (nama_fakultas) VALUES
+(&#x27;Fakultas Ilmu Komputer&#x27;),
+(&#x27;Fakultas Ekonomi&#x27;),
+(&#x27;Fakultas Teknik&#x27;);
+
+INSERT INTO jurusan (id_fakultas, nama_jurusan) VALUES
+(1,&#x27;Teknik Informatika&#x27;),
+(1,&#x27;Sistem Informasi&#x27;),
+(2,&#x27;Manajemen&#x27;),
+(3,&#x27;Teknik Sipil&#x27;),
+(3,&#x27;Teknik Elektro&#x27;);
+
+INSERT INTO mahasiswa (nim, nama, jenis_kelamin, tanggal_lahir, id_jurusan, angkatan) VALUES
+(&#x27;22001&#x27;,&#x27;Andi Saputra&#x27;,&#x27;L&#x27;,&#x27;2004-01-10&#x27;,1,2022),
+(&#x27;22002&#x27;,&#x27;Siti Rahma&#x27;,&#x27;P&#x27;,&#x27;2004-05-12&#x27;,1,2022),
+(&#x27;22003&#x27;,&#x27;Budi Hartono&#x27;,&#x27;L&#x27;,&#x27;2003-08-22&#x27;,2,2021),
+(&#x27;22004&#x27;,&#x27;Dewi Anggraini&#x27;,&#x27;P&#x27;,&#x27;2004-02-18&#x27;,3,2022),
+(&#x27;22005&#x27;,&#x27;Rian Maulana&#x27;,&#x27;L&#x27;,&#x27;2003-12-09&#x27;,4,2021),
+(&#x27;22006&#x27;,&#x27;Nabila Sari&#x27;,&#x27;P&#x27;,&#x27;2004-04-27&#x27;,5,2022),
+(&#x27;22007&#x27;,&#x27;Fajar Hidayat&#x27;,&#x27;L&#x27;,&#x27;2003-06-15&#x27;,2,2021),
+(&#x27;22008&#x27;,&#x27;Maya Putri&#x27;,&#x27;P&#x27;,&#x27;2004-09-30&#x27;,3,2022),
+(&#x27;22009&#x27;,&#x27;Yoga Pratama&#x27;,&#x27;L&#x27;,&#x27;2003-11-11&#x27;,1,2021),
+(&#x27;22010&#x27;,&#x27;Intan Lestari&#x27;,&#x27;P&#x27;,&#x27;2004-07-21&#x27;,5,2022);
+
+INSERT INTO dosen (nama_dosen, email) VALUES
+(&#x27;Dr. Ahmad Fauzi&#x27;,&#x27;ahmad@kampus.ac.id&#x27;),
+(&#x27;Prof. Lina Marlina&#x27;,&#x27;lina@kampus.ac.id&#x27;),
+(&#x27;Rudi Hartono&#x27;,&#x27;rudi@kampus.ac.id&#x27;),
+(&#x27;Sari Wulandari&#x27;,&#x27;sari@kampus.ac.id&#x27;),
+(&#x27;Bambang Setiawan&#x27;,&#x27;bambang@kampus.ac.id&#x27;);
+
+INSERT INTO mata_kuliah (kode_mk, nama_mk, sks, id_jurusan, id_dosen) VALUES
+(&#x27;IF101&#x27;,&#x27;Algoritma&#x27;,3,1,1),
+(&#x27;IF102&#x27;,&#x27;Basis Data&#x27;,3,1,3),
+(&#x27;SI201&#x27;,&#x27;Analisis Sistem&#x27;,3,2,2),
+(&#x27;MN101&#x27;,&#x27;Manajemen Dasar&#x27;,2,3,4),
+(&#x27;TS101&#x27;,&#x27;Struktur Bangunan&#x27;,3,4,5),
+(&#x27;TE101&#x27;,&#x27;Rangkaian Listrik&#x27;,3,5,5);
+
+INSERT INTO krs (id_mahasiswa, id_mk, semester, nilai) VALUES
+(1,1,1,&#x27;A&#x27;),
+(1,2,1,&#x27;B&#x27;),
+(2,1,1,&#x27;A&#x27;),
+(3,3,3,&#x27;B&#x27;),
+(4,4,1,&#x27;A&#x27;),
+(5,5,3,&#x27;C&#x27;),
+(6,6,1,&#x27;B&#x27;),
+(7,3,3,&#x27;A&#x27;),
+(8,4,1,&#x27;A&#x27;),
+(9,2,3,&#x27;B&#x27;);</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="materi" class="section">
+        <h2>Materi Inti</h2>
+
+        <div class="topic">
+          <h3>1) SELECT dan FROM</h3>
+          <p>Di tahap awal belajar, kalian boleh memakai <code>SELECT *</code> untuk melihat isi tabel secara utuh. Ini berguna untuk mengenali nama kolom dan memastikan data sudah masuk. Namun setelah itu, biasakan menampilkan kolom yang memang diperlukan saja. Alasannya sederhana: hasil query jadi lebih ringkas, mudah dibaca, dan enak dipakai untuk laporan.</p>
+          <div class="codebar"><button class="btn btn--small" data-copy="m1">Copy</button></div>
+          <pre class="code" id="m1" data-raw="SELECT * FROM siswa;
+
+SELECT nis, nama, alamat FROM siswa;"><code>SELECT * FROM siswa;
+
+SELECT nis, nama, alamat FROM siswa;</code></pre>
+        </div>
+
+        <div class="topic">
+          <h3>2) WHERE</h3>
+          <p>Kalau kalian tidak menulis <code>WHERE</code>, database akan menampilkan semua baris data. Saat data mulai banyak, ini membuat kita sulit fokus. Karena itu, gunakan <code>WHERE</code> ketika kalian hanya butuh data yang memenuhi syarat tertentu, misalnya tahun masuk tertentu atau alamat tertentu. Biasakan juga mengecek: teks harus pakai petik satu, sedangkan angka tidak perlu.</p>
+          <div class="codebar"><button class="btn btn--small" data-copy="m2">Copy</button></div>
+          <pre class="code" id="m2" data-raw="SELECT nis, nama
+FROM siswa
+WHERE tahun_masuk = 2023;"><code>SELECT nis, nama
+FROM siswa
+WHERE tahun_masuk = 2023;</code></pre>
+        </div>
+
+        <div class="topic">
+          <h3>3) AND / OR / NOT</h3>
+          <p>Di kasus nyata, syarat sering lebih dari satu. Di sini kalian memakai logika. Gunakan <code>AND</code> kalau semua syarat harus benar, gunakan <code>OR</code> kalau cukup salah satu syarat benar, dan gunakan <code>NOT</code> untuk pengecualian. Kalau hasil query kosong, jangan panik dulu—cek lagi apakah datanya memang ada atau syaratnya terlalu ketat.</p>
+          <div class="codebar"><button class="btn btn--small" data-copy="m3">Copy</button></div>
+          <pre class="code" id="m3" data-raw="SELECT nis, nama
+FROM siswa
+WHERE tahun_masuk = 2023 AND jenis_kelamin = 'P';
+
+SELECT judul, stok
+FROM buku
+WHERE stok = 3 OR stok = 4;
+
+SELECT id_pinjam, status
+FROM peminjaman
+WHERE NOT status = 'Kembali';"><code>SELECT nis, nama
+FROM siswa
+WHERE tahun_masuk = 2023 AND jenis_kelamin = &#x27;P&#x27;;
+
+SELECT judul, stok
+FROM buku
+WHERE stok = 3 OR stok = 4;
+
+SELECT id_pinjam, status
+FROM peminjaman
+WHERE NOT status = &#x27;Kembali&#x27;;</code></pre>
+        </div>
+
+        <div class="topic">
+          <h3>4) LIKE</h3>
+          <p>Kadang kalian tidak ingat data persis, tetapi ingat sebagian kata. Untuk kondisi seperti itu, gunakan <code>LIKE</code>. Ingat aturan pola: <code>'A%'</code> artinya dimulai huruf A, sedangkan <code>'%Putri%'</code> artinya mengandung kata Putri di bagian mana pun. Pastikan tanda persen <code>%</code> kalian letakkan sesuai tujuan pencariannya.</p>
+          <div class="codebar"><button class="btn btn--small" data-copy="m4">Copy</button></div>
+          <pre class="code" id="m4" data-raw="SELECT nis, nama
+FROM siswa
+WHERE nama LIKE 'A%';
+
+SELECT nis, nama
+FROM siswa
+WHERE nama LIKE '%Putri%';"><code>SELECT nis, nama
+FROM siswa
+WHERE nama LIKE &#x27;A%&#x27;;
+
+SELECT nis, nama
+FROM siswa
+WHERE nama LIKE &#x27;%Putri%&#x27;;</code></pre>
+        </div>
+
+        <div class="topic">
+          <h3>5) IN dan BETWEEN</h3>
+          <p>Kalau kalian menulis <code>OR</code> berkali-kali, query akan panjang dan mudah salah. Untuk itu gunakan <code>IN</code> saat pilihan datanya berupa daftar. Gunakan <code>BETWEEN</code> saat kalian memfilter rentang angka atau tahun. Ingat: <code>BETWEEN</code> termasuk batas bawah dan batas atas.</p>
+          <div class="codebar"><button class="btn btn--small" data-copy="m5">Copy</button></div>
+          <pre class="code" id="m5" data-raw="SELECT nis, nama, alamat
+FROM siswa
+WHERE alamat IN ('Jakarta','Depok','Bogor');
+
+SELECT judul, tahun_terbit
+FROM buku
+WHERE tahun_terbit BETWEEN 2019 AND 2022;"><code>SELECT nis, nama, alamat
+FROM siswa
+WHERE alamat IN (&#x27;Jakarta&#x27;,&#x27;Depok&#x27;,&#x27;Bogor&#x27;);
+
+SELECT judul, tahun_terbit
+FROM buku
+WHERE tahun_terbit BETWEEN 2019 AND 2022;</code></pre>
+        </div>
+
+        <div class="topic">
+          <h3>6) ORDER BY dan LIMIT</h3>
+          <p>Setelah data sudah benar, rapikan tampilannya. <code>ORDER BY</code> membantu mengurutkan hasil agar mudah dibaca, misalnya A–Z atau nilai terbesar dulu. Kalau kalian hanya butuh beberapa data teratas, gunakan <code>LIMIT</code>. Biasanya <code>LIMIT</code> dipasangkan dengan <code>ORDER BY</code> supaya jelas ‘teratas’ itu berdasarkan apa.</p>
+          <div class="codebar"><button class="btn btn--small" data-copy="m6">Copy</button></div>
+          <pre class="code" id="m6" data-raw="SELECT judul, stok
+FROM buku
+ORDER BY stok DESC
+LIMIT 3;"><code>SELECT judul, stok
+FROM buku
+ORDER BY stok DESC
+LIMIT 3;</code></pre>
+        </div>
+      </section>
+
+      <section id="latihan" class="section">
+        <div class="section__head">
+          <h2>Latihan (db_sekolah)</h2>
+          <span class="badge">db_sekolah</span>
+        </div>
+        <p class="muted">Kerjakan berurutan. Tulis query di google docs (dalam lembar pengerjaan G.Classroom).</p>
+        
+<div class="level">
+  <div class="level__title">Level 1 — Pemanasan</div>
+  <div class="level__grid">
+    <div class="task"><div class="task__no">1</div><div class="task__text">Tampilkan <strong>nis</strong> dan <strong>nama</strong> semua siswa.</div></div><div class="task"><div class="task__no">2</div><div class="task__text">Tampilkan siswa yang <strong>tahun_masuk = 2022</strong>.</div></div><div class="task"><div class="task__no">3</div><div class="task__text">Tampilkan siswa yang <strong>jenis_kelamin = 'P'</strong>.</div></div><div class="task"><div class="task__no">4</div><div class="task__text">Tampilkan buku yang <strong>stok &gt; 5</strong>.</div></div>
+  </div>
+</div>
+
+<div class="level">
+  <div class="level__title">Level 2 — Dua Syarat (AND)</div>
+  <div class="level__grid">
+    <div class="task"><div class="task__no">5</div><div class="task__text">Tampilkan siswa yang <strong>alamat = 'Jakarta'</strong> dan <strong>tahun_masuk = 2023</strong>.</div></div><div class="task"><div class="task__no">6</div><div class="task__text">Tampilkan siswa <strong>laki-laki</strong> yang <strong>tahun_masuk = 2022</strong>.</div></div><div class="task"><div class="task__no">7</div><div class="task__text">Tampilkan peminjaman yang <strong>status = 'Dipinjam'</strong>.</div></div>
+  </div>
+</div>
+
+<div class="level">
+  <div class="level__title">Level 3 — OR dan NOT</div>
+  <div class="level__grid">
+    <div class="task"><div class="task__no">8</div><div class="task__text">Tampilkan siswa dari <strong>Depok</strong> atau <strong>Bogor</strong>.</div></div><div class="task"><div class="task__no">9</div><div class="task__text">Tampilkan buku yang stoknya <strong>3</strong> atau <strong>4</strong>.</div></div><div class="task"><div class="task__no">10</div><div class="task__text">Tampilkan peminjaman yang <strong>bukan</strong> status <strong>Kembali</strong>.</div></div>
+  </div>
+</div>
+
+<div class="level">
+  <div class="level__title">Level 4 — LIKE</div>
+  <div class="level__grid">
+    <div class="task"><div class="task__no">11</div><div class="task__text">Cari siswa yang namanya <strong>diawali</strong> huruf <strong>A</strong>.</div></div><div class="task"><div class="task__no">12</div><div class="task__text">Cari siswa yang namanya <strong>mengandung</strong> kata <strong>Sari</strong>.</div></div><div class="task"><div class="task__no">13</div><div class="task__text">Cari buku yang judulnya <strong>mengandung</strong> kata <strong>Matematika</strong>.</div></div>
+  </div>
+</div>
+
+<div class="level">
+  <div class="level__title">Level 5 — IN dan BETWEEN</div>
+  <div class="level__grid">
+    <div class="task"><div class="task__no">14</div><div class="task__text">Tampilkan siswa yang alamatnya termasuk <strong>Jakarta, Depok, Bogor</strong> (wajib IN).</div></div><div class="task"><div class="task__no">15</div><div class="task__text">Tampilkan buku yang tahun terbitnya <strong>2019 sampai 2022</strong> (wajib BETWEEN).</div></div><div class="task"><div class="task__no">16</div><div class="task__text">Tampilkan nilai yang <strong>nilai_angka</strong> berada di rentang <strong>80 sampai 95</strong>.</div></div>
+  </div>
+</div>
+
+<div class="level">
+  <div class="level__title">Level 6 — ORDER BY dan LIMIT</div>
+  <div class="level__grid">
+    <div class="task"><div class="task__no">17</div><div class="task__text">Urutkan siswa berdasarkan <strong>nama A–Z</strong>.</div></div><div class="task"><div class="task__no">18</div><div class="task__text">Urutkan buku berdasarkan <strong>stok terbanyak</strong>.</div></div><div class="task"><div class="task__no">19</div><div class="task__text">Ambil <strong>3 buku</strong> stok terbanyak (ORDER BY + LIMIT).</div></div><div class="task"><div class="task__no">20</div><div class="task__text">Ambil <strong>3 nilai tertinggi</strong> (ORDER BY + LIMIT).</div></div><div class="task"><div class="task__no">21</div><div class="task__text">Gabungkan: cari siswa nama mengandung <strong>Putri</strong>, urutkan A–Z, ambil 5 data.</div></div>
+  </div>
+</div>
+
+      </section>
+
+      <section id="tugas" class="section">
+        <div class="section__head">
+          <h2>Tugas (db_kuliah)</h2>
+          <span class="badge badge--alt">db_kuliah</span>
+        </div>
+        <p class="muted">Kerjakan tugas ini di db_kuliah. Pastikan query rapi dan sesuai instruksi.</p>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>Tugas 1 — Administrasi Mahasiswa</h3>
+            <ol class="steps">
+              <li>Tampilkan <code>nim, nama, angkatan</code> mahasiswa angkatan <strong>2022</strong>, urutkan nama A–Z.</li>
+              <li>Tampilkan mahasiswa <strong>perempuan</strong> angkatan 2022.</li>
+              <li>Tampilkan mahasiswa yang namanya mengandung <strong>Putri</strong> atau <strong>Sari</strong>.</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>Tugas 2 — Mata Kuliah</h3>
+            <ol class="steps">
+              <li>Tampilkan <code>kode_mk, nama_mk, sks</code> untuk <strong>sks = 3</strong>, urutkan nama_mk A–Z.</li>
+              <li>Tampilkan mata kuliah dengan kode diawali <strong>IF</strong> (LIKE).</li>
+              <li>Tampilkan mata kuliah untuk jurusan <strong>id 1, 2, 3</strong> (IN).</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3>Tugas 3 — KRS Sederhana</h3>
+          <ol class="steps">
+            <li>Tampilkan KRS semester <strong>1</strong> saja.</li>
+            <li>Tampilkan KRS semester <strong>1 sampai 3</strong> (BETWEEN).</li>
+            <li>Tampilkan KRS dengan nilai <strong>A</strong> atau <strong>B</strong> (IN), urut semester ASC, batasi 10 baris.</li>
+          </ol>
+          <div class="callout">
+            <strong>Catatan</strong>
+            <div class="muted">Gunakan ORDER BY dan LIMIT pada poin yang memerlukannya.</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3>Tugas 4 — Kode Tantangan (anti-salin)</h3>
+          <p class="muted">Guru membagikan kode: <strong>[Fokus]-[Filter]-[Output]</strong>. Buat 1 query sesuai kode.</p>
+
+          <div class="grid3">
+            <div class="mini">
+              <div class="mini__title">Fokus</div>
+              <ul>
+                <li><strong>M</strong> = mahasiswa</li>
+                <li><strong>K</strong> = krs</li>
+                <li><strong>MK</strong> = mata_kuliah</li>
+              </ul>
+            </div>
+            <div class="mini">
+              <div class="mini__title">Filter</div>
+              <ul>
+                <li><strong>1</strong> = angkatan</li>
+                <li><strong>2</strong> = semester</li>
+                <li><strong>3</strong> = nilai</li>
+              </ul>
+            </div>
+            <div class="mini">
+              <div class="mini__title">Output</div>
+              <ul>
+                <li><strong>A</strong> = ORDER BY</li>
+                <li><strong>L</strong> = LIMIT</li>
+                <li><strong>B</strong> = BETWEEN</li>
+                <li><strong>I</strong> = IN</li>
+                <li><strong>S</strong> = LIKE</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout callout--warn">
+            <strong>Contoh kode:</strong> <code>K-2-L</code><br/>
+            <span class="muted">Fokus KRS, filter semester, hasil dibatasi dengan LIMIT.</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="pengumpulan" class="section">
+        <h2>Pengumpulan</h2>
+        <div class="grid2">
+          <div class="card">
+            <h3>Yang dikumpulkan</h3>
+            <ul>
+              <li>Query SQL (teks) untuk setiap nomor latihan/tugas.</li>
+              <li>Screenshot output hasil query.</li>
+              <li>Nama database yang digunakan.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Format query rapi</h3>
+            <div class="codebar"><button class="btn btn--small" data-copy="fmt">Copy</button></div>
+            <pre class="code" id="fmt" data-raw="SELECT kolom1, kolom2
+FROM tabel
+WHERE syarat
+ORDER BY kolom1 ASC
+LIMIT 5;"><code>SELECT kolom1, kolom2
+FROM tabel
+WHERE syarat
+ORDER BY kolom1 ASC
+LIMIT 5;</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="muted">Jika kalian sudah lancar di modul ini, barulah kita naik ke JOIN dan fungsi agregat.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
